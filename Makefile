@@ -3,11 +3,13 @@ SRCDIR = src
 VLOGDIR = generated
 OUTPUTDIR = output
 ONLYSYNTH = 1
+USINGSIM = 1
 CLK = main_clock
 IPCACHEDIR = cache
 
 TARGETFILE ?= $(SRCDIR)/bsv/Testbench.bsv
 TOPMODULE ?= mkTbXdmaEndpoint
+SIMTOPMODULE ?= board
 export TOP = $(TOPMODULE)
 export RTL = $(VLOGDIR)
 export XDC = $(SRCDIR)/xdc
@@ -16,6 +18,9 @@ export SYNTHONLY = $(ONLYSYNTH)
 export CLOCKS = $(CLK)
 export IPSRC = $(SRCDIR)/scripts
 export IPCACHE = $(IPCACHEDIR)
+export SIM = $(USINGSIM)
+export SIMSRC = $(SRCDIR)/tb
+export SIMTOP = $(SIMTOPMODULE)
 
 TRANSFLAGS = -aggressive-conditions # -lift -split-if
 RECOMPILEFLAGS = -u -show-compiles

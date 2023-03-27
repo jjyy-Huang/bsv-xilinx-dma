@@ -266,40 +266,74 @@ endinterface
 
 (* always_ready, always_enabled *)
 interface XdmaSimPipe;
-    method Action cmdIn(XdmaPipeCmd cmd);
-    method Action sigs0In(XdmaPipeData data);
-    method Action sigs1In(XdmaPipeData data);
-    method Action sigs2In(XdmaPipeData data);
-    method Action sigs3In(XdmaPipeData data);
-    method Action sigs4In(XdmaPipeData data);
-    method Action sigs5In(XdmaPipeData data);
-    method Action sigs6In(XdmaPipeData data);
-    method Action sigs7In(XdmaPipeData data);
-    method Action sigs8In(XdmaPipeData data);
-    method Action sigs9In(XdmaPipeData data);
-    method Action sigs10In(XdmaPipeData data);
-    method Action sigs11In(XdmaPipeData data);
-    method Action sigs12In(XdmaPipeData data);
-    method Action sigs13In(XdmaPipeData data);
-    method Action sigs14In(XdmaPipeData data);
-    method Action sigs15In(XdmaPipeData data);
+    (* prefix = "" *)
+    method Action cmdIn((* port = "common_commands_in" *)XdmaPipeCmd cmd);
+    (* prefix = "" *)
+    method Action sigs0In((* port = "pipe_rx_0_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs1In((* port = "pipe_rx_1_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs2In((* port = "pipe_rx_2_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs3In((* port = "pipe_rx_3_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs4In((* port = "pipe_rx_4_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs5In((* port = "pipe_rx_5_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs6In((* port = "pipe_rx_6_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs7In((* port = "pipe_rx_7_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs8In((* port = "pipe_rx_8_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs9In((* port = "pipe_rx_9_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs10In((* port = "pipe_rx_10_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs11In((* port = "pipe_rx_11_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs12In((* port = "pipe_rx_12_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs13In((* port = "pipe_rx_13_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs14In((* port = "pipe_rx_14_sigs" *)XdmaPipeData data);
+    (* prefix = "" *)
+    method Action sigs15In((* port = "pipe_rx_15_sigs" *)XdmaPipeData data);
 
+    (* prefix = "", result = "common_commands_out" *)
     method XdmaPipeCmd cmdOut;
+    (* prefix = "", result = "pipe_tx_0_sigs" *)
     method XdmaPipeData sigs0Out;
+    (* prefix = "", result = "pipe_tx_1_sigs" *)
     method XdmaPipeData sigs1Out;
+    (* prefix = "", result = "pipe_tx_2_sigs" *)
     method XdmaPipeData sigs2Out;
+    (* prefix = "", result = "pipe_tx_3_sigs" *)
     method XdmaPipeData sigs3Out;
+    (* prefix = "", result = "pipe_tx_4_sigs" *)
     method XdmaPipeData sigs4Out;
+    (* prefix = "", result = "pipe_tx_5_sigs" *)
     method XdmaPipeData sigs5Out;
+    (* prefix = "", result = "pipe_tx_6_sigs" *)
     method XdmaPipeData sigs6Out;
+    (* prefix = "", result = "pipe_tx_7_sigs" *)
     method XdmaPipeData sigs7Out;
+    (* prefix = "", result = "pipe_tx_8_sigs" *)
     method XdmaPipeData sigs8Out;
+    (* prefix = "", result = "pipe_tx_9_sigs" *)
     method XdmaPipeData sigs9Out;
+    (* prefix = "", result = "pipe_tx_10_sigs" *)
     method XdmaPipeData sigs10Out;
+    (* prefix = "", result = "pipe_tx_11_sigs" *)
     method XdmaPipeData sigs11Out;
+    (* prefix = "", result = "pipe_tx_12_sigs" *)
     method XdmaPipeData sigs12Out;
+    (* prefix = "", result = "pipe_tx_13_sigs" *)
     method XdmaPipeData sigs13Out;
+    (* prefix = "", result = "pipe_tx_14_sigs" *)
     method XdmaPipeData sigs14Out;
+    (* prefix = "", result = "pipe_tx_15_sigs" *)
     method XdmaPipeData sigs15Out;
 endinterface
 
@@ -345,6 +379,7 @@ interface XdmaPin;
 `ifdef USING_DMA_BRIDGE
     interface Reset         dmaBridgeRstN;
 `endif
+    (* prefix = "" *)
     interface XdmaPciExpPin xdmaPciExpPin;
     interface XdmaUsrPin    xdmaUsrPin;
 endinterface

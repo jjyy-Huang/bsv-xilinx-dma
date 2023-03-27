@@ -71,7 +71,7 @@ module mkTbXdmaEndpoint#(Clock sysClk, Clock gtClk, Reset sysRstN, Bool startTes
 // `endif
     // let tmpFifo <- mkInitXdmaCfg(usrClk, usrRstN, usrIfc.usrLnkUp);
 
-    let reqFifo <- mkInitXdmaCfg(startTest, xdmaUsr.xdmaConfigIfc.xdmaRegisterConfig, clocked_by usrClk, reset_by usrRstN);
+    mkInitXdmaCfg(startTest, xdmaUsr.xdmaConfigIfc.xdmaRegisterConfig, clocked_by usrClk, reset_by usrRstN);
 
     return pcie;
 endmodule
@@ -183,17 +183,16 @@ endmodule
 //         if (last) begin
 //             initStatus <= INIT_IDLE;
 //         end
-
 //     endrule
-
 // endmodule
 
 module mkInitXdmaCfg#(Bool start, XdmaRegisterConfigSlave xdmaCfg)();
     Reg#(Bit#(32)) cnt <- mkReg(0);
 
     rule init if (cnt == 0);
-        if (start)
-            cnt <= cnt + 1;
+        if (start) begin
+            cnt <= 1;
+        end
     endrule
 
     rule a if (cnt == 1);
@@ -203,13 +202,13 @@ module mkInitXdmaCfg#(Bool start, XdmaRegisterConfigSlave xdmaCfg)();
                 data: 32'h2fffe7f
             }
         );
-        cnt <= cnt + 1;
+        cnt <= 2;
     endrule
 
     rule b if (cnt == 2);
         let t = xdmaCfg.writeResp;
         if (t.notEmpty) begin
-            cnt <= cnt + 1;
+            cnt <= 3;
             t.deq;
         end
     endrule
@@ -221,61 +220,15 @@ module mkInitXdmaCfg#(Bool start, XdmaRegisterConfigSlave xdmaCfg)();
                 data: 32'h2fffe7f
             }
         );
-        cnt <= cnt + 1;
+        cnt <= 4;
     endrule
 
     rule d if (cnt == 4);
         let t = xdmaCfg.writeResp;
         if (t.notEmpty) begin
-            cnt <= cnt + 1;
+            cnt <= 5;
             t.deq;
         end
     endrule
 
 endmodule
-
-// (* no_default_clock, no_default_reset *)
-// module mkAxiLiteSlaveWrite#(Clock usrClk, Reset usrRstN, XdmaRegCfgAxiL regCfg, FIFOF#(XdmaAxiLiteWriteReq) req)();
-//     Reg#(AxiLiteWriteStage) status <- mkReg(IDLE, clocked_by usrClk, reset_by usrRstN);
-//     let axiWrite = req.first;
-
-//     rule stageIdel if (status == IDLE);
-//         if (req.notEmpty)
-//             status <= ADDR_WRITE;
-//     endrule
-
-//     rule stageAW if (status == ADDR_WRITE);
-//         regCfg.aw.req(axiWrite.addr, 0);
-//         status <= WAITING_ADDR_WRITE_RESP;
-//     endrule
-
-//     rule stageAWWait if (status == WAITING_ADDR_WRITE_RESP);
-//         if (regCfg.aw.resp) begin
-//             status <= DATA_WRITE;
-//         end
-//     endrule
-
-//     rule stageW if (status == DATA_WRITE);
-//         regCfg.w.req(axiWrite.data, False);
-//         status <= WAITING_DATA_WRITE_RESP;
-//     endrule
-
-//     rule stageWWait if (status == WAITING_DATA_WRITE_RESP);
-//         if (regCfg.w.resp) begin
-//             status <= RESP_REQ;
-//         end
-//     endrule
-
-//     rule stageB if (status == RESP_REQ);
-//         regCfg.b.req(True);
-//         status <= WAITING_RESP_REQ;
-//     endrule
-
-//     rule stageBWait if (status == WAITING_RESP_REQ);
-//         if (regCfg.b.isValid) begin
-//             req.deq;
-//             status <= IDLE;
-//         end
-//     endrule
-
-// endmodule

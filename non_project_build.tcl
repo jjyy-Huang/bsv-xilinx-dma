@@ -14,6 +14,10 @@ set target_clks $::env(CLOCKS)
 set ipsrc_dir $::env(IPSRC)
 set ipcache_dir $::env(IPCACHE)
 
+set do_sim $::env(SIM)
+set sim_src $::env(SIMSRC)
+set sim_top $::env(SIMTOP)
+
 file mkdir $ipcache_dir
 
 set MAX_NET_PATH_NUM 200
@@ -35,6 +39,10 @@ report_property $device -file $out_dir/pre_synth_dev_prop.rpt
 
 # add ip source
 source [ glob $ipsrc_dir/*.tcl ]
+
+if { $do_sim } {
+    source $sim_src/run_sim.tcl
+}
 
 synth_design -top $top_module -retiming
 write_checkpoint -force $out_dir/post_synth.dcp

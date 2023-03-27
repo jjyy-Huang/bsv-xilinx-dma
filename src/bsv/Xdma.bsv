@@ -4,6 +4,7 @@ import XdmaUserController :: *;
 interface XDMA;
     interface Clock              usrClk;
     interface Reset              usrRstN;
+    (* prefix = "" *)
     interface XdmaPciExpPin      pciePins;
     interface XdmaUserController xdmaUsrCtl;
 endinterface

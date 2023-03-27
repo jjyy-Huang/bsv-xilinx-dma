@@ -44,3 +44,5 @@ if { [file exists $ip_dcp] } {
     generate_target all [get_files $ipcache_dir/$module_name/$module_name.xci]
     synth_ip [get_ips $module_name]
 }
+
+report_property [get_ips $module_name] -file $out_dir/check_$module_name.rpt
