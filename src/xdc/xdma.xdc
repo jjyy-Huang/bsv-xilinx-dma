@@ -1,4 +1,4 @@
-create_clock -period 2 -name main_clock [get_ports CLK]
+create_clock -period 5 -name main_clock [get_ports sysClk]
 # report_property [get_clocks CLK]; # Check clock properties e.g. jitter
 
 # set_clock_groups -asynchronous \

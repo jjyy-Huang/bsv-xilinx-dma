@@ -2,17 +2,20 @@ BUILDDIR = build
 SRCDIR = src
 VLOGDIR = generated
 OUTPUTDIR = output
-ONLYSYNTH = 0
+ONLYSYNTH = 1
 CLK = main_clock
+IPCACHEDIR = cache
 
-TARGETFILE ?= $(SRCDIR)/TLB.bsv
-TOPMODULE ?= mkTLB
+TARGETFILE ?= $(SRCDIR)/bsv/Testbench.bsv
+TOPMODULE ?= mkTbXdmaEndpoint
 export TOP = $(TOPMODULE)
 export RTL = $(VLOGDIR)
-export XDC = $(SRCDIR)
+export XDC = $(SRCDIR)/xdc
 export OUTPUT = $(OUTPUTDIR)
 export SYNTHONLY = $(ONLYSYNTH)
 export CLOCKS = $(CLK)
+export IPSRC = $(SRCDIR)/scripts
+export IPCACHE = $(IPCACHEDIR)
 
 TRANSFLAGS = -aggressive-conditions # -lift -split-if
 RECOMPILEFLAGS = -u -show-compiles
@@ -34,7 +37,7 @@ VERILOGFLAGS = -verilog -remove-dollar -remove-unused-modules # -use-dpi -verilo
 BLUESIMFLAGS = -parallel-sim-link 16 # -systemc
 OUTDIR = -bdir $(BUILDDIR) -info-dir $(BUILDDIR) -simdir $(BUILDDIR) -vdir $(BUILDDIR)
 WORKDIR = -fdir $(abspath .)
-BSVSRCDIR = -p +:$(abspath $(SRCDIR))
+BSVSRCDIR = -p +:$(abspath $(SRCDIR)/bsv)
 DIRFLAGS = $(BSVSRCDIR) $(OUTDIR) $(WORKDIR)
 MISCFLAGS = -print-flags -show-timestamps -show-version # -steps 1000000000000000 -D macro
 RUNTIMEFLAGS = +RTS -K256M -RTS
@@ -50,13 +53,13 @@ link: compile
 simulate: link
 	$(SIMEXE)
 
-verilog: link
+verilog: compile
 	bsc $(VERILOGFLAGS) $(DIRFLAGS) $(RECOMPILEFLAGS) $(TRANSFLAGS) -g $(TOPMODULE) $(TARGETFILE)
 	mkdir -p $(VLOGDIR)
 	bluetcl listVlogFiles.tcl -bdir $(BUILDDIR) -vdir $(BUILDDIR) $(TOPMODULE) $(TOPMODULE) | grep -i '\.v' | xargs -I {} cp {} $(VLOGDIR)
 
 vivado: verilog
-	vivado -mode batch -source non_project_build.tcl 2>&1 | tee ./run.log
+	vivado -nolog -nojournal -mode batch -source non_project_build.tcl 2>&1 | tee ./run.log
 
 clean:
 	rm -rf $(BUILDDIR) $(VLOGDIR) $(OUTPUTDIR) .Xil *.jou *.log

@@ -11,6 +11,10 @@ set rtl_dir $::env(RTL)
 set xdc_dir $::env(XDC)
 set synth_only $::env(SYNTHONLY)
 set target_clks $::env(CLOCKS)
+set ipsrc_dir $::env(IPSRC)
+set ipcache_dir $::env(IPCACHE)
+
+file mkdir $ipcache_dir
 
 set MAX_NET_PATH_NUM 200
 set MAX_LOGIC_LEVEL 40
@@ -24,10 +28,13 @@ read_xdc [ glob $xdc_dir/*.xdc ]
 # STEP#3: run synthesis, write design checkpoint, report timing,
 # and utilization estimates
 #
-set_param general.maxthreads 24
+set_param general.maxthreads 32
 set device [get_parts xcvu9p-flga2104-2L-e]; # xcvu9p_CIV-flga2577-2-e; #
 set_part $device
 report_property $device -file $out_dir/pre_synth_dev_prop.rpt
+
+# add ip source
+source [ glob $ipsrc_dir/*.tcl ]
 
 synth_design -top $top_module -retiming
 write_checkpoint -force $out_dir/post_synth.dcp
