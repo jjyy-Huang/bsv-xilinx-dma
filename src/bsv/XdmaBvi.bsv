@@ -1,107 +1,5 @@
 import Clocks :: *;
-
-`define USING_PIPE_SIM
-`define USING_AXIL_SLAVE
-`define USING_MSI
-`define USING_MSIX
-// `define USING_AXIL_MASTER
-// `define USING_CFG_MGMT
-// `define USING_DMA_BRIDGE
-
-typedef 16      PCIE_LANES;
-
-typedef 512     XDMA_AXIS_DATAwIDTH;
-typedef 1       XMDA_C2H_CH_NUMS;
-typedef 1       XMDA_H2C_CH_NUMS;
-
-typedef 8       XDMA_CH_STATUS_WIDTH;
-typedef Bit#(XDMA_CH_STATUS_WIDTH)  XdmaChStatus;
-
-typedef 1       XDMA_USR_IRQ_WIDTH;
-typedef 3       XDMA_MSI_VEC_WIDTH;
-
-typedef Bit#(XDMA_USR_IRQ_WIDTH) XdmaUsrIrq;
-typedef Bit#(XDMA_MSI_VEC_WIDTH) XdmaMsiVec;
-
-typedef 64      XDMA_DSC_BYPASS_ADDR_WIDTH;
-typedef 28      XDMA_DSC_BYPASS_LEN;
-typedef 16      XDMA_DSC_BYPASS_CTL_WIDTH;
-
-typedef 19      XDMA_CFG_MGMT_ADDR_WIDTH;
-typedef 32      XDMA_CFG_MGMT_DATA_WIDTH;
-
-typedef Bit#(XDMA_CFG_MGMT_ADDR_WIDTH)              XdmaCfgMgmtAddr;
-typedef Bit#(XDMA_CFG_MGMT_DATA_WIDTH)              XdmaCfgMgmtData;
-typedef Bit#(TDiv#(XDMA_CFG_MGMT_DATA_WIDTH, 8))    XdmaCfgMgmtByteEna;
-
-typedef 26      XDMA_PIPE_CMD_WIDTH;
-typedef 84      XDMA_PIPE_DATA_WIDTH;
-
-typedef Bit#(XDMA_PIPE_CMD_WIDTH)  XdmaPipeCmd;
-typedef Bit#(XDMA_PIPE_DATA_WIDTH) XdmaPipeData;
-
-// typedef 64      AXI4_ADDR_WIDTH;
-// typedef 512     AXI4_DATA_WIDTH;
-// typedef 8       AXI4_LEN_WIDTH;
-// typedef 3       AXI4_SIZE_WIDTH;
-// typedef 4       AXI4_ID_WIDTH;
-// typedef 3       AXI4_PROT_WIDTH;
-
-typedef 32      AXILITE_ADDR_WIDTH;
-typedef 32      AXILITE_DATA_WIDTH;
-typedef 2       AXILITE_RESP_WIDTH;
-typedef 3       AXILITE_PROT_WIDTH;
-typedef 1       AXILITE_STRB_WIDTH;
-
-typedef Bit#(AXILITE_ADDR_WIDTH)    XdmaAxiLiteAddr;
-typedef Bit#(AXILITE_DATA_WIDTH)    XdmaAxiLiteData;
-typedef Bit#(AXILITE_RESP_WIDTH)    XdmaAxiLiteResp;
-typedef Bit#(AXILITE_PROT_WIDTH)    XdmaAxiLiteProt;
-typedef Bit#(AXILITE_STRB_WIDTH)    XdmaAXiLiteStrb;
-
-typedef Bit#(XDMA_AXIS_DATAwIDTH)               XdmaAxisData;
-typedef Bit#(TDiv#(XDMA_AXIS_DATAwIDTH, 8))     XdmaAxisKeep;
-typedef Bool                                    XdmaAxisLast;
-
-typedef Bit#(XDMA_DSC_BYPASS_ADDR_WIDTH)    XdmaDscBypAddr;
-typedef Bit#(XDMA_DSC_BYPASS_LEN)           XdmaDscBypLen;
-typedef Bit#(XDMA_DSC_BYPASS_CTL_WIDTH)     XdmaDscBypCtl;
-
-typedef Bit#(PCIE_LANES)    XdmaPciExp;
-
-typedef struct {
-    XdmaAxisData data;
-    XdmaAxisLast last;
-    XdmaAxisKeep keep;
-} DMADataStream deriving(Bits, Eq);
-
-typedef struct {
-    XdmaDscBypAddr src;
-    XdmaDscBypAddr dst;
-    XdmaDscBypLen  len;
-    // ctl[0]: Stop fetching next descriptor if setting 1;
-    // ctl[1]: interrupt after finish this descriptor if setting 1;
-    // ctl[4]: activate axi-s tLast if setting 1;
-    XdmaDscBypCtl  ctl;
-} DMADescriptorBypass deriving(Bits, Eq);
-
-typedef struct {
-    XdmaAxiLiteAddr addr;
-    XdmaAxiLiteData data;
-} XdmaAxiLiteWriteReq deriving(Bits, Eq);
-
-typedef struct {
-    XdmaAxiLiteResp resp;
-} XdmaAxiLiteWriteResp deriving(Bits, Eq);
-
-typedef struct {
-    XdmaAxiLiteAddr addr;
-} XdmaAxiLiteReadReq deriving(Bits, Eq);
-
-typedef struct {
-    XdmaAxiLiteData data;
-    XdmaAxiLiteResp resp;
-} XdmaAxiLiteReadResp deriving(Bits, Eq);
+import XdmaDataType :: *;
 
 (* always_enabled, always_ready *)
 interface XdmaPciePins;
@@ -115,7 +13,7 @@ interface XdmaPciePins;
     method XdmaPciExp txp();
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface XdmaC2HDataStream;
     method Action putStream(
         XdmaAxisData data,
@@ -125,7 +23,7 @@ interface XdmaC2HDataStream;
     method Bool   isReady;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface XdmaH2CDataStream;
     method Bool         isValid;
     method XdmaAxisData getData;
@@ -134,7 +32,7 @@ interface XdmaH2CDataStream;
     method Action       readyAssertAct;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface XdmaChannelDscByp;
     method Bool   isReady;
     method Action putDescriptor(
@@ -150,7 +48,7 @@ interface XdmaChannelSts;
     method XdmaChStatus getStatus;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface AxiLiteSlaveAwChannel;
     method Action putAddr(
         XdmaAxiLiteAddr addr,
@@ -159,7 +57,7 @@ interface AxiLiteSlaveAwChannel;
     method Bool   isReady;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface AxiLiteSlaveWChannel;
     method Action putData(
         XdmaAxiLiteData data,
@@ -168,14 +66,14 @@ interface AxiLiteSlaveWChannel;
     method Bool   isReady;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface AxiLiteSlaveBChannel;
     method Bool            isValid;
     method XdmaAxiLiteResp getResp;
     method Action          readyAssertAct;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface AxiLiteSlaveArChannel;
     method Action putAddr(
         XdmaAxiLiteAddr addr,
@@ -184,7 +82,7 @@ interface AxiLiteSlaveArChannel;
     method Bool   isReady;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface AxiLiteSlaveRChannel;
     method Bool            isValid;
     method XdmaAxiLiteData getData;
@@ -192,7 +90,7 @@ interface AxiLiteSlaveRChannel;
     method Action          readyAssertAct;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface AxiLiteMasterAwChannel;
     method XdmaAxiLiteAddr getAddr;
     method XdmaAxiLiteProt getProt;   // never used
@@ -200,7 +98,7 @@ interface AxiLiteMasterAwChannel;
     method Action          readyAssertAct;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface AxiLiteMasterWChannel;
     method XdmaAxiLiteData getData;
     method XdmaAXiLiteStrb getStrb;
@@ -208,13 +106,13 @@ interface AxiLiteMasterWChannel;
     method Action          readyAssertAct;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface AxiLiteMasterBChannel;
     method Action          putResp(XdmaAxiLiteResp resp);
     method Bool            isReady;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface AxiLiteMasterArChannel;
     method XdmaAxiLiteAddr getAddr;
     method XdmaAxiLiteProt getProt;  // never used
@@ -222,9 +120,9 @@ interface AxiLiteMasterArChannel;
     method Action          readyAssertAct;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface AxiLiteMasterRChannel;
-    method Action putData(
+    method Action putResp(
         XdmaAxiLiteData data,
         XdmaAxiLiteResp resp
     );
@@ -247,7 +145,7 @@ interface XdmaConfigAxiLiteMmMaster;
     interface AxiLiteMasterRChannel  r;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface XdmaCfgMgmt;
     method Action          putAddr(XdmaCfgMgmtAddr addr);
     method Action          wrAssertAct;
@@ -258,7 +156,7 @@ interface XdmaCfgMgmt;
     method Bool            isDone;
 endinterface
 
-(* always_ready *)
+(* always_ready, always_enabled *)
 interface XdmaIrq;
     method Action       req;
     method XdmaUsrIrq   ask;
@@ -568,7 +466,7 @@ module mkXdmaBvi#(Clock sysClk, Clock gtClk, Reset sysRstN)(XdmaPin);
             endinterface
 
             interface AxiLiteMasterRChannel r;
-                method putData(
+                method putResp(
                     m_axil_rdata,
                     m_axil_rresp
                 ) enable(m_axil_rvalid)      clocked_by(usrClk) reset_by(usrRstN);
@@ -579,13 +477,13 @@ module mkXdmaBvi#(Clock sysClk, Clock gtClk, Reset sysRstN)(XdmaPin);
 
     `ifdef USING_CFG_MGMT
         interface XdmaCfgMgmt xdmaCfgMgmt;
-            method putAddr(cfg_mgmt_addr)           enable((*inhigh*)cfg_mgmt_addr_dummy_en)         clocked_by(usrClk) reset_by(usrRstN);
-            method wrAssertAct()                    enable(cfg_mgmt_write)                           clocked_by(usrClk) reset_by(usrRstN);
-            method putWrData(cfg_mgmt_write_data)   enable((*inhigh*)cfg_mgmt_write_data_dummy_en)   clocked_by(usrClk) reset_by(usrRstN);
-            method putByteEna(cfg_mgmt_byte_enable) enable((*inhigh*)cfg_mgmt_byte_enable_dummy_en)  clocked_by(usrClk) reset_by(usrRstN);
-            method rdAssertAct()                    enable(cfg_mgmt_read)                            clocked_by(usrClk) reset_by(usrRstN);
-            method cfg_mgmt_read_data               getRdData                                        clocked_by(usrClk) reset_by(usrRstN);
-            method cfg_mgmt_read_write_done         isDone                                           clocked_by(usrClk) reset_by(usrRstN);
+            method putAddr(cfg_mgmt_addr)           enable((* inhigh *)cfg_mgmt_addr_dummy_en)        clocked_by(usrClk) reset_by(usrRstN);
+            method wrAssertAct()                    enable(cfg_mgmt_write)                            clocked_by(usrClk) reset_by(usrRstN);
+            method putWrData(cfg_mgmt_write_data)   enable((* inhigh *)cfg_mgmt_write_data_dummy_en)  clocked_by(usrClk) reset_by(usrRstN);
+            method putByteEna(cfg_mgmt_byte_enable) enable((* inhigh *)cfg_mgmt_byte_enable_dummy_en) clocked_by(usrClk) reset_by(usrRstN);
+            method rdAssertAct()                    enable(cfg_mgmt_read)                             clocked_by(usrClk) reset_by(usrRstN);
+            method cfg_mgmt_read_data               getRdData                                         clocked_by(usrClk) reset_by(usrRstN);
+            method cfg_mgmt_read_write_done         isDone                                            clocked_by(usrClk) reset_by(usrRstN);
         endinterface
     `endif
 
@@ -747,7 +645,6 @@ module mkXdmaBvi#(Clock sysClk, Clock gtClk, Reset sysRstN)(XdmaPin);
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.w.isValid,
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.w.readyAssertAct,
 
-        xdmaUsrPin.xdmaConfigAxiLiteMmMaster.b.validAssertAct,
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.b.putResp,
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.b.isReady,
 
@@ -756,7 +653,7 @@ module mkXdmaBvi#(Clock sysClk, Clock gtClk, Reset sysRstN)(XdmaPin);
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.ar.isValid,
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.ar.readyAssertAct,
 
-        xdmaUsrPin.xdmaConfigAxiLiteMmMaster.r.putData,
+        xdmaUsrPin.xdmaConfigAxiLiteMmMaster.r.putResp,
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.r.isReady,
     `endif
 
@@ -832,7 +729,6 @@ module mkXdmaBvi#(Clock sysClk, Clock gtClk, Reset sysRstN)(XdmaPin);
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.w.isValid,
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.w.readyAssertAct,
 
-        xdmaUsrPin.xdmaConfigAxiLiteMmMaster.b.validAssertAct,
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.b.putResp,
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.b.isReady,
 
@@ -841,7 +737,7 @@ module mkXdmaBvi#(Clock sysClk, Clock gtClk, Reset sysRstN)(XdmaPin);
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.ar.isValid,
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.ar.readyAssertAct,
 
-        xdmaUsrPin.xdmaConfigAxiLiteMmMaster.r.putData,
+        xdmaUsrPin.xdmaConfigAxiLiteMmMaster.r.putResp,
         xdmaUsrPin.xdmaConfigAxiLiteMmMaster.r.isReady,
     `endif
 
